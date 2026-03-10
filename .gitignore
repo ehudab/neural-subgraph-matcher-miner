@@ -13,3 +13,5 @@ results/
 orca/
 core
 deepsnap-experimental/
+venv/
+facebook_combined.txt
