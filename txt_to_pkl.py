@@ -41,6 +41,15 @@ def load_edges_from_txt(input_path: str):
     return edges
 
 
+def extract_nodes(edges):
+    """Build a sorted unique node list from edges."""
+    nodes = set()
+    for src, dst in edges:
+        nodes.add(src)
+        nodes.add(dst)
+    return sorted(nodes)
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="Convert an edge-list .txt file to a .pkl file"
@@ -51,17 +60,21 @@ def main():
 
     edges = load_edges_from_txt(args.input)
 
-    # Store both the edge list and a tiny metadata block for easy inspection after loading.
+    nodes = extract_nodes(edges)
+
+    # IMPORTANT: decoder.py expects either:
+    # 1) a NetworkX Graph/DiGraph, or
+    # 2) a dict with exactly usable 'nodes' and 'edges' keys.
+    # We write option (2) for maximum simplicity and portability.
     payload = {
-        "format": "edge_list",
-        "num_edges": len(edges),
+        "nodes": nodes,
         "edges": edges,
     }
 
     with open(args.output, "wb") as f:
         pickle.dump(payload, f)
 
-    print(f"Saved {len(edges)} edges to {args.output}")
+    print(f"Saved {len(nodes)} nodes and {len(edges)} edges to {args.output}")
 
 
 if __name__ == "__main__":
