@@ -330,3 +330,27 @@ This project builds upon foundational research from Stanford's SNAP group:
 - [DeepSNAP](https://github.com/snap-stanford/deepsnap) - Graph data structures
 
 ---
+
+
+```bash
+sudo docker run --rm \
+  -v /home/ehud/training_assignment/neural-subgraph-matcher-miner:/app \
+  -e PYTHONUNBUFFERED=1 \
+  neural-miner \
+  bash -c "
+    set -e
+    echo 'Starting decoder run...'
+    python -m subgraph_mining.decoder \
+      --dataset=facebook.pkl \
+      --n_trials=100 \
+      --n_neighborhoods=100 \
+      --search_strategy="greedy" \
+      --min_neighborhood_size=2 \
+      --max_neighborhood_size=3 \
+      --out_path=/app/results/patterns.pkl
+
+    echo 'Checking output directories...'
+    ls -la /app/plots/cluster
+    ls -la /app/results
+  "
+```
