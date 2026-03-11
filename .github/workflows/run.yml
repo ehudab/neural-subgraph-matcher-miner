@@ -69,7 +69,7 @@ jobs:
                 --dataset=facebook.pkl \
                 --min_neighborhood_size=2 \
                 --max_neighborhood_size=3 \
-                --n_neighborhoods=200 \
+                --n_neighborhoods=300 \
                 --node_anchored \
                 --out_path=/app/results/patterns.pkl \
                 
