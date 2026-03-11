@@ -70,8 +70,9 @@ jobs:
                 --min_neighborhood_size=2 \
                 --max_neighborhood_size=3 \
                 --n_neighborhoods=100 \
-                --n_trials=400 \
+                --n_trials=300 \
                 --node_anchored \
+                --search_strategy="mcts" \
                 --out_path=/app/results/patterns.pkl \
                 
 
