@@ -763,12 +763,34 @@ class BeamSearchAgent(SearchAgent):
         self.cand_patterns = defaultdict(list)
         self.pattern_counts = defaultdict(lambda: defaultdict(list))
         self.trials_completed = 0
+        self.search_steps_completed = 0
         self.current_size = self.min_pattern_size
         self.analyze_embs = [] if self.analyze else None
+
+    def run_search(self, n_trials=1000):
+        """Run beam search for exactly n_trials steps.
+
+        Beam search does not naturally terminate via the generic while-loop in
+        SearchAgent.run_search, so we run a bounded loop to avoid infinite runs.
+        """
+        self.cand_patterns = defaultdict(list)
+        self.counts = defaultdict(lambda: defaultdict(list))
+        self.n_trials = n_trials
+        self.init_search()
+
+        for i in range(n_trials):
+            pct = int((i + 1) / n_trials * 100) if n_trials else 0
+            print(
+                f"[MINER_PROGRESS] phase=search_trials current={i+1} total={n_trials} percent={pct}",
+                flush=True,
+            )
+            self.step()
+
+        return self.finish_search()
     
     def is_search_done(self):
         """Check if search is complete."""
-        return self.trials_completed >= self.n_trials
+        return self.search_steps_completed >= self.n_trials
     
     def _compute_pattern_score(self, pattern, anchor=None):
         """Compute score for a pattern using the trained model."""
@@ -881,7 +903,8 @@ class BeamSearchAgent(SearchAgent):
         if not self.pattern_beams[self.current_size]:
             # Sample seed nodes and create initial patterns
             initial_beam = []
-            num_seeds = min(self.beam_width * 2, self.n_trials - self.trials_completed)
+            remaining_trials = max(0, self.n_trials - self.trials_completed)
+            num_seeds = min(self.beam_width * 2, remaining_trials)
             
             for _ in range(num_seeds):
                 graph_idx, seed_node = self._sample_seed_node()
@@ -963,6 +986,7 @@ class BeamSearchAgent(SearchAgent):
         self.current_size += 1
         if self.current_size > self.max_pattern_size:
             self.current_size = self.min_pattern_size
+        self.search_steps_completed += 1
     
     def finish_search(self):
         """Finish search and return identified patterns."""
